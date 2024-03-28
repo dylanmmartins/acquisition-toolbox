@@ -68,17 +68,9 @@
       <Expression xsi:type="rx:BehaviorSubject">
         <Name>DrawStimulus</Name>
       </Expression>
-      <Expression xsi:type="SubscribeSubject">
-        <Name>numReps</Name>
-      </Expression>
-      <Expression xsi:type="PropertyMapping">
-        <PropertyMappings>
-          <Property Name="Count" />
-        </PropertyMappings>
-      </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:RepeatCount">
-          <rx:Count>150</rx:Count>
+          <rx:Count>100</rx:Count>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -90,86 +82,40 @@
       <Expression xsi:type="SubscribeSubject">
         <Name>DrawStimulus</Name>
       </Expression>
-      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawCheckerboard.bonsai">
-        <ExtentX>4</ExtentX>
-        <ExtentY>2</ExtentY>
-        <LocationX>0</LocationX>
-        <LocationY>0</LocationY>
-        <Layer>0</Layer>
-        <Angle>0</Angle>
-        <NumberColumns>9</NumberColumns>
-        <NumberRows>6</NumberRows>
-        <Phase>1</Phase>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Collections.SparseNoise.bonsai">
+        <Duration>PT2S</Duration>
+        <ActiveQuads>5</ActiveQuads>
+        <GridSize>
+          <Width>10</Width>
+          <Height>15</Height>
+        </GridSize>
       </Expression>
-      <Expression xsi:type="SubscribeSubject">
-        <Name>stimOnTime</Name>
-      </Expression>
-      <Expression xsi:type="MemberSelector" />
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:TimeInterval" />
-      </Expression>
-      <Expression xsi:type="PropertyMapping">
-        <PropertyMappings>
-          <Property Name="DueTime" />
-        </PropertyMappings>
+        <Combinator xsi:type="gl:UpdateTexture">
+          <gl:TextureTarget>Texture2D</gl:TextureTarget>
+          <gl:InternalFormat>Rgba</gl:InternalFormat>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Timer">
-          <rx:DueTime>PT0.0000002S</rx:DueTime>
+          <rx:DueTime>PT3S</rx:DueTime>
           <rx:Period>PT0S</rx:Period>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:TakeUntil" />
-      </Expression>
-      <Expression xsi:type="SubscribeSubject">
-        <Name>DrawStimulus</Name>
-      </Expression>
-      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawCheckerboard.bonsai">
-        <ExtentX>4</ExtentX>
-        <ExtentY>2</ExtentY>
-        <LocationX>0</LocationX>
-        <LocationY>0</LocationY>
-        <Layer>0</Layer>
-        <Angle>0</Angle>
-        <NumberColumns>9</NumberColumns>
-        <NumberRows>6</NumberRows>
-        <Phase>0</Phase>
-      </Expression>
-      <Expression xsi:type="SubscribeSubject">
-        <Name>stimOnTime</Name>
-      </Expression>
-      <Expression xsi:type="MemberSelector" />
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:TimeInterval" />
-      </Expression>
-      <Expression xsi:type="PropertyMapping">
-        <PropertyMappings>
-          <Property Name="DueTime" />
-        </PropertyMappings>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:Timer">
-          <rx:DueTime>PT0.0000002S</rx:DueTime>
-          <rx:Period>PT0S</rx:Period>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:TakeUntil" />
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:Concat" />
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Zip" />
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>C:\Users\dmartins\Desktop\stimfiles\230327_DMM_DMM000_test\230327_DMM_DMM000_test_10.csv</io:FileName>
+        <io:FileName>C:\Users\dmartins\Desktop\stimfiles\230327_DMM_DMM000_test\230327_DMM_DMM000_test_06.csv</io:FileName>
         <io:Append>false</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>None</io:Suffix>
         <io:IncludeHeader>false</io:IncludeHeader>
       </Expression>
+      <Expression xsi:type="WorkflowOutput" />
       <Expression xsi:type="GroupWorkflow">
         <Name>recording_info</Name>
         <Description />
@@ -264,7 +210,7 @@
             </Expression>
             <Expression xsi:type="Combinator">
               <Combinator xsi:type="StringProperty">
-                <Value>10</Value>
+                <Value>06</Value>
               </Combinator>
             </Expression>
             <Expression xsi:type="Combinator">
@@ -344,43 +290,6 @@
           </Edges>
         </Workflow>
       </Expression>
-      <Expression xsi:type="GroupWorkflow">
-        <Name>stim_options</Name>
-        <Workflow>
-          <Nodes>
-            <Expression xsi:type="ExternalizedMapping">
-              <Property Name="Value" DisplayName="1-stim_on_time" />
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="FloatProperty">
-                <Value>2</Value>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="rx:ReplaySubject">
-              <Name>stimOnTime</Name>
-              <rx:BufferSize xsi:nil="true" />
-            </Expression>
-            <Expression xsi:type="ExternalizedMapping">
-              <Property Name="Value" DisplayName="2-reps" />
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="IntProperty">
-                <Value>150</Value>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="rx:ReplaySubject">
-              <Name>numReps</Name>
-              <rx:BufferSize xsi:nil="true" />
-            </Expression>
-          </Nodes>
-          <Edges>
-            <Edge From="0" To="1" Label="Source1" />
-            <Edge From="1" To="2" Label="Source1" />
-            <Edge From="3" To="4" Label="Source1" />
-            <Edge From="4" To="5" Label="Source1" />
-          </Edges>
-        </Workflow>
-      </Expression>
     </Nodes>
     <Edges>
       <Edge From="0" To="1" Label="Source1" />
@@ -388,33 +297,20 @@
       <Edge From="3" To="4" Label="Source1" />
       <Edge From="4" To="5" Label="Source1" />
       <Edge From="5" To="6" Label="Source1" />
-      <Edge From="6" To="33" Label="Source1" />
+      <Edge From="6" To="19" Label="Source1" />
       <Edge From="7" To="8" Label="Source1" />
       <Edge From="8" To="9" Label="Source1" />
-      <Edge From="9" To="12" Label="Source1" />
+      <Edge From="9" To="10" Label="Source1" />
       <Edge From="10" To="11" Label="Source1" />
-      <Edge From="11" To="12" Label="Source2" />
-      <Edge From="12" To="13" Label="Source1" />
+      <Edge From="10" To="20" Label="Source1" />
+      <Edge From="11" To="12" Label="Source1" />
+      <Edge From="12" To="18" Label="Source1" />
       <Edge From="13" To="14" Label="Source1" />
-      <Edge From="14" To="32" Label="Source1" />
-      <Edge From="15" To="16" Label="Source1" />
-      <Edge From="16" To="22" Label="Source1" />
-      <Edge From="17" To="18" Label="Source1" />
-      <Edge From="18" To="19" Label="Source1" />
-      <Edge From="19" To="20" Label="Source1" />
-      <Edge From="20" To="21" Label="Source1" />
-      <Edge From="21" To="22" Label="Source2" />
-      <Edge From="22" To="31" Label="Source1" />
-      <Edge From="23" To="24" Label="Source1" />
-      <Edge From="24" To="30" Label="Source1" />
-      <Edge From="25" To="26" Label="Source1" />
-      <Edge From="26" To="27" Label="Source1" />
-      <Edge From="27" To="28" Label="Source1" />
-      <Edge From="28" To="29" Label="Source1" />
-      <Edge From="29" To="30" Label="Source2" />
-      <Edge From="30" To="31" Label="Source2" />
-      <Edge From="31" To="32" Label="Source2" />
-      <Edge From="32" To="33" Label="Source2" />
+      <Edge From="14" To="15" Label="Source1" />
+      <Edge From="15" To="17" Label="Source1" />
+      <Edge From="16" To="17" Label="Source2" />
+      <Edge From="17" To="18" Label="Source2" />
+      <Edge From="18" To="19" Label="Source2" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
