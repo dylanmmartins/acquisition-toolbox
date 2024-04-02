@@ -9,14 +9,14 @@ class DriftingGratings:
 
     def __init__(self, stim_props):
         """
-        
         Parameters
         ----------
         stim_props : dict
             Dictionary of stimulus properties.
         """
 
-        self.orientations = stim_props['ori_list']
+        self.num_orientations = stim_props['num_orientations']
+        self.orientations = np.linspace(0, 360, self.num_orientations, endpoint=False)
         self.spatial_freqs = stim_props['sf_list']
         self.temporal_freqs = stim_props['tf_list']
     
@@ -39,21 +39,23 @@ class DriftingGratings:
         ])
 
         self.win = visual.Window(
-            [1360, 768],
-            fullscr=False,
+            [self.monitor_x, self.monitor_y],
+            fullscr=True,
             units='pix',
             color=[0,0,0]
         )
 
+    def set_monitor_pxls(self, monitor_x=1360, monitor_y=768):
+        self.monitor_x = monitor_x
+        self.monitor_y = monitor_y
 
     def scale_spatial_freq_to_monitor(self, sf_list):
+        # Convert cycles/pixel to cycles/deg
+        # 77.9 pixels / 1 cm (for diagonal resolution of small monitors)
+        # 1 cm / 4 deg (for monitor places 14.3 cm away from viewer)
 
-        
-
-
-
-
-        
+        for i in range(len(sf_list)):
+            self.spatial_freqs[i] = self.spatial_freqs[i] / (77.9 / 4)
 
     def make_stim_stack(self):
 
@@ -84,8 +86,10 @@ class DriftingGratings:
                 ori=s['ori'],
                 sf=s['sf'],
                 tf=s['tf'],
-                autoLog=False
+                autoLog=False,
+                autoDraw=False
             )
+
 
             self.stim_stack.append(_stim_obj)
 
@@ -108,12 +112,14 @@ class DriftingGratings:
 
             while clock.getTime() < self.on_time:
 
-                if 
+                frame.draw()
 
+                self.win.flip()
 
-            
+            while clock.getTime() < self.off_time:
 
-
+                # grey inter-stimulus interval
+                self.win.flip()
 
     def log_stim_instructions(self, savepath):
 

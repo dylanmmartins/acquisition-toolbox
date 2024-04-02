@@ -36,7 +36,7 @@ class Camera:
         self.timestamps = []
 
 
-    def record(self):
+    def capture(self):
 
         while self.cap.isOpened():
 
@@ -66,6 +66,7 @@ class Camera:
         self.out.release()
         cv2.destroyAllWindows()
 
+        
     def preview(self):
         # preview the camera feed without recording, TTL, etc.
 
@@ -76,7 +77,6 @@ class Camera:
             ret, frame = self.cap.read()
 
             if not ret:
-
                 print("Can't receive frame (stream end?). Exiting ...")
                 break
 
@@ -90,11 +90,12 @@ class Camera:
             if cv2.waitKey(1) == ord('q'):
                 break
 
-
-
     def record(self):
 
         self.cam_startup()
 
-        self.record()
+        if self.use_trig is True:
+            acq.wait_for_trig()
+
+        self.capture()
 
