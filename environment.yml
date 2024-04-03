@@ -6,12 +6,14 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.8
+  - python=3.12
   - pip
   - ffmpeg
   - matplotlib
   - tqdm
   - pip:
-    - pysimplegui
+    - pysimplegui==4.60.5
     - opencv-python
     - scipy
+    - psychopy
+    - nidaqmx

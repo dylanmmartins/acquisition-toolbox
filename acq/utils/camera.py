@@ -1,6 +1,5 @@
 
 
-import nidaqmx
 import numpy as np
 import cv2
 
@@ -15,8 +14,6 @@ class Camera:
         self.cam_id = cam_id
         self.savepath = savepath
         self.use_trig = use_trig
-
-        self.preview = True
 
         self.began_acq = False
 
@@ -57,7 +54,7 @@ class Camera:
             self.out.write(frame)
 
             if self.preview is True:
-                cv2.imshow('CameraFrame', frame)
+                cv2.imshow('Camera {} (press `q` to exit)'.format(self.cam_id), frame)
 
             if cv2.waitKey(1) == ord('q'):
                 break
@@ -85,10 +82,13 @@ class Camera:
                 # horizontal & vertical flip
                 frame = cv2.flip(frame, -1)
 
-                cv2.imshow('CameraFrame', frame)
+                cv2.imshow('Camera {} (press `q` to exit)'.format(self.cam_id), frame)
 
             if cv2.waitKey(1) == ord('q'):
                 break
+
+        self.cap.release()
+        cv2.destroyAllWindows()
 
     def record(self):
 

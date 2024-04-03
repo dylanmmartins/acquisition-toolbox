@@ -64,3 +64,5 @@ def wait_for_trig(dev_num=0, input_line=0):
                                 
         task.start()
 
+def send_trig():
+    pass
