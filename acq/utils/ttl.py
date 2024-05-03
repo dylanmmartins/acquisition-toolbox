@@ -1,4 +1,3 @@
-
 import time
 import numpy as np
 import nidaqmx
@@ -7,7 +6,6 @@ from nidaqmx import stream_readers
 nidaq_reader: stream_readers.AnalogMultiChannelReader = None
 
 # https://stackoverflow.com/questions/73419239/ni-daqmx-how-to-start-collecting-signals-when-the-amplitude-of-the-wave-crosse
-
 
 def callback_fn(task_handle, every_n_samples_event_type, pretrigger_samples, callback_data):
     try:
@@ -29,7 +27,7 @@ def callback_fn(task_handle, every_n_samples_event_type, pretrigger_samples, cal
         quit()
 
 
-def wait_for_trig(dev_num=0, input_line=0):
+def wait_for_trig(dev_name=0, input_line=0):
       
     sampleRate = 2e5   # Sample rate in Hz
     secsToAcquire = 60    # Number of seconds over which to acquire data
@@ -40,17 +38,17 @@ def wait_for_trig(dev_num=0, input_line=0):
     with nidaqmx.Task('hardwareFiniteVoltage') as task:
         
         task.ai_channels.add_ai_voltage_chan(
-            'Dev{}/ai{}'.format(dev_num, input_line)\
+            'Dev{}/ai{}'.format(dev_name, input_line)\
         )
 
         task.timing.cfg_samp_clk_timing(
             sampleRate,
-            samps_per_chan=numberOfSamples, 
-            sample_mode=nidaqmx.constants.AcquisitionType(10178)
+            sample_mode=nidaqmx.constants.AcquisitionType(10178),
+            samps_per_chan=numberOfSamples
         )
         
         task.triggers.reference_trigger.cfg_anlg_edge_ref_trig(
-            'Dev{}/ai{}'.format(dev_num, input_line),
+            'Dev{}/ai{}'.format(dev_name, input_line),
             pretrigger_samples,
             trigger_level=0.1
         )
@@ -59,10 +57,22 @@ def wait_for_trig(dev_num=0, input_line=0):
         task.register_every_n_samples_acquired_into_buffer_event(numberOfSamples, callback_fn)
         
         # Initialize the stream_readers nidaq_reader to be used by your callback to get your actual data
-        #  global nidaq_reader
+        # global nidaq_reader
         nidaq_reader = stream_readers.AnalogSingleChannelReader(task.in_stream)
                                 
         task.start()
 
-def send_trig():
-    pass
+def send_trig(dev_name=1, channel_num=1):
+
+    with nidaqmx.Task() as task:
+        task.ao_channels.add_ao_voltage_chan(
+            'Dev{}/ao{}'.format(dev_name, channel_num),
+            min_val=0,
+            max_val=5
+        )
+        
+# see ttl_testing.py for basic functionality
+# adapt this when the use case is clearer :-)
+
+if __name__ == '__main__':
+     send_trig()

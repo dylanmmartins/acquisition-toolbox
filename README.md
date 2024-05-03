@@ -17,10 +17,10 @@
 [] Camera class: make sure frames and timestamps get saved out as expected, start on trigger works. Also check that there isn’t a delay between TTL input received and first frame logged.
 
 extra points:
-[] Making the grating stimulus move.
-[] Creating a monitor calibration for psychopy (keeps saying 'monitor calibration not found)
+[] Create a monitor calibration for psychopy (keeps saying 'monitor calibration not found)
 
 small to-dos:
 [x] make it close the window after finishing stimobj.show()
-[] self.savepath for DriftingGratings class
-[] make stimulus fill out whole screen
+[X] self.savepath for DriftingGratings class
+[] make stimulus fill out whole screen, even when it is oriented
+[] make stimulus in gratings.py move (see your stim.py file)

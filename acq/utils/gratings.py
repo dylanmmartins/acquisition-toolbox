@@ -6,9 +6,10 @@ from psychopy import visual, core
 
 sg.theme('Default1')
 
+
 class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulus):
 
-    def __init__(self, stim_props, screen_id=1, savepath=None):
+    def __init__(self, stim_props, screen_id=2, savepath=None):
         """
         Parameters
         ----------
@@ -40,8 +41,6 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
         self.set_monitor_pxls()
 
         self.savepath = savepath
-        # if savepath is not None:
-        #     self.savepath = savepath
 
         self.props = stim_props
 
@@ -85,7 +84,10 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
             print('Select savepath for stimulus log file.')
             savepath = sg.popup_get_file('Save stimulus log file as:', save_as=True)
 
-        np.save(savepath, self.stim_history)
+        if not savepath.endswith('.csv'):
+            savepath = savepath + '.csv'
+
+        np.savetxt(savepath, self.stim_history, delimiter=',')
 
     def make_stim_stack(self):
 
@@ -112,12 +114,12 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
             _stim_obj = visual.GratingStim(
                 self.win,
                 tex='sin',
-                mask='gauss',
                 ori=s['ori'],
                 sf=s['sf'],
                 # tf=s['tf'],        # not a possible argument for visual.GratingStim
                                      # (figure out how to move gratings later)
-                size=self.monitor_x, # adjust stimulus size to monitor size
+                size=[self.monitor_x, self.monitor_y],           # adjust stimulus size to monitor size
+                units = 'pix',
                 autoLog=False,
                 autoDraw=False
             )
@@ -148,18 +150,16 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
             clock = core.MonotonicClock()
 
             for i, frame in enumerate(self.stim_stack):
+                # I think this is where the while statement for
+                # moving gratings should go
                 frame.draw()
                 self.win.flip()
-                self.stim_history[i,3] = round(
-                    clock.getTime(applyZero=True),
-                    ndigits=1)
+                self.stim_history[i,3] = clock.getTime(applyZero=True)
                 core.wait(self.on_time)
 
                 frame.clearTextures()
                 self.win.flip()
-                self.stim_history[i,4] = round(
-                    clock.getTime(applyZero=True),
-                    ndigits=1)
+                self.stim_history[i,4] = clock.getTime(applyZero=True)
                 core.wait(self.off_time)
             
             self.win.close()
@@ -194,5 +194,5 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
         #     self.win.close()
 
 
-        #self.log_stim_instructions() # AttributeError: 'DriftingGratings' object has no attribute 'savepath'
+        self.log_stim_instructions() # AttributeError: 'DriftingGratings' object has no attribute 'savepath'
 
