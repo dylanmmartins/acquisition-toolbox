@@ -19,15 +19,15 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
 
         # acq.BaseStimulus.__init__(self, stim_props, screen_id, savepath)
         
-        np.random.seed(10) # why is this here?
+        np.random.seed(10)
 
         self.screen_id = screen_id
 
         self.stim_stack = []
         self.stim_instructions = []
 
-        self.monitor_x = 1360
-        self.monitor_y = 768  # default, can be changed with set_monitor_pxls() below
+        self.monitor_x = 800
+        self.monitor_y = 600  # default, can be changed with set_monitor_pxls() below
 
         self.win = visual.Window(
             [self.monitor_x, self.monitor_y],
@@ -63,12 +63,14 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
             2   # start time / stop time
         ])
 
-    def set_monitor_pxls(self, monitor_x=1360, monitor_y=768):
+    def set_monitor_pxls(self, monitor_x=800, monitor_y=600):
 
         self.monitor_x = monitor_x
         self.monitor_y = monitor_y
 
     def scale_spatial_freq_to_monitor(self):
+        # Probably needs to be adjusted to new monitor
+
         # Convert cycles/pixel to cycles/deg
         # 77.9 pixels / 1 cm (for diagonal resolution of small monitors)
         # 1 cm / 4 deg (for monitor placed 14.3 cm away from viewer)
@@ -78,7 +80,7 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
             self.sf_list.append(sf / (77.9 / 4))
         return self.sf_list
 
-    def log_stim_instructions(self):
+    def log_stim_presentation(self):
 
         if self.savepath is None:
             print('Select savepath for stimulus log file.')
@@ -87,7 +89,10 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
         if not savepath.endswith('.csv'):
             savepath = savepath + '.csv'
 
-        np.savetxt(savepath, self.stim_history, delimiter=',')
+        column_headers = ['ori', 'sf', 'tf', 'onset', 'offset']
+        header_string = ",".join(column_headers)    
+
+        np.savetxt(savepath, self.stim_history, delimiter=',', header=header_string)
 
     def make_stim_stack(self):
 
@@ -116,15 +121,17 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
                 tex='sin',
                 ori=s['ori'],
                 sf=s['sf'],
-                # tf=s['tf'],        # not a possible argument for visual.GratingStim
-                                     # (figure out how to move gratings later)
-                size=[self.monitor_x, self.monitor_y],           # adjust stimulus size to monitor size
+                size=[2*self.monitor_x, 2*self.monitor_y], # for ori
                 units = 'pix',
                 autoLog=False,
                 autoDraw=False
             )
 
             self.stim_stack.append(_stim_obj)
+        
+        self.stim_stack_tf = []
+        for stim in self.stim_instructions: # takes tf to apply in show()
+            self.stim_stack_tf.append(stim["tf"])
 
         self.stim_history = np.empty([
             len(self.stim_instructions),
@@ -135,64 +142,70 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
             self.stim_history[i,0] = instr['ori']
             self.stim_history[i,1] = instr['sf']
             self.stim_history[i,2] = instr['tf']
+          # self.stim_history[i,3] = will log stimulus onset in show()
+          # self.stim_history[i,4] = will log stimulus offset in show()
 
     def show(self):
+        """
+        Presents the stimulus stack. Creates a running clock first. Then, each
+        element in self.stim_stack is drawn and its phase updated for < the
+        specified self.on_time. This makes for drifting, with stim_stack_tf
+        specifying Hz. The screen then switches to grey for the specified
+        self.off_time.
+        
+        Stimulus onset is logged before the loop starts, stimulus offset is
+        logged just before switching to gray screen.
 
-        # Make sure the stimulus stack is ready
+        5/7/2024: Logging does not seem entirely precise, but maybe it
+        is precise enough for our purposes for now.
+        """
+
         if len(self.stim_stack) == 0:
             print('No generated stimulus to present.')
         
-
-        # The following works but is not super temporally precise
-        # (on and off intervals are not consistent throughout).
-
         else:
-            clock = core.MonotonicClock()
-
+            history_clock = core.MonotonicClock() # to log stim on/off times
+            
             for i, frame in enumerate(self.stim_stack):
-                # I think this is where the while statement for
-                # moving gratings should go
-                frame.draw()
-                self.win.flip()
-                self.stim_history[i,3] = clock.getTime(applyZero=True)
-                core.wait(self.on_time)
+                t = 0
+                on_time = core.Clock()
+                self.stim_history[i,3] = history_clock.getTime(applyZero=True)
 
-                frame.clearTextures()
-                self.win.flip()
-                self.stim_history[i,4] = clock.getTime(applyZero=True)
-                core.wait(self.off_time)
+                while t < self.on_time:
+                    t = on_time.getTime()
+                    self.stim_stack[i].phase = t * self.stim_stack_tf[i] # t*Hz
+                    frame.draw()
+                    self.win.flip()
+
+                else:
+                    self.stim_history[i,4] = history_clock.getTime(applyZero=True)
+                    frame.clearTextures()
+                    self.win.flip()
+                    core.wait(self.off_time)
+
+                on_time.reset()
             
             self.win.close()
 
+        # Keeping this for future purposes:
 
-        # This one also works but is also not completely precise
-        # (the on intervals are not consistent throughout).
+        # The following works but is not super temporally precise
+        # (on and off intervals are not consistent throughout).
 
         # else:
         #     clock = core.MonotonicClock()
 
         #     for i, frame in enumerate(self.stim_stack):
-        #         self.stim_history[i,3] = round(
-        #             clock.getTime(applyZero=True),
-        #             ndigits=1
-        #             )
-        #         on_timer = core.CountdownTimer(self.on_time)
-        #         while on_timer.getTime() > 0:
-        #             frame.draw()
-        #             self.win.flip()
-                
-        #         else:
-        #             self.stim_history[i,4] = round(
-        #                 clock.getTime(applyZero=True),
-        #                 ndigits=1
-        #                 )
-        #             off_timer = core.CountdownTimer(self.off_time)
-        #             while off_timer.getTime() > 0:
-        #                 frame.clearTextures()
-        #                 self.win.flip()
+        #         frame.draw()
+        #         self.win.flip()
+        #         self.stim_history[i,3] = clock.getTime(applyZero=True)
+        #         core.wait(self.on_time)
+
+        #         frame.clearTextures()
+        #         self.win.flip()
+        #         self.stim_history[i,4] = clock.getTime(applyZero=True)
+        #         core.wait(self.off_time)
             
         #     self.win.close()
 
-
-        self.log_stim_instructions() # AttributeError: 'DriftingGratings' object has no attribute 'savepath'
-
+        self.log_stim_presentation()

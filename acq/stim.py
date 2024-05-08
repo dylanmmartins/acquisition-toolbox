@@ -6,15 +6,15 @@ import argparse
 import acq
 
 
-def stim(stimulus_name, screen_id=2):
+def stim(stimulus_name, screen_id=1):
 
     if stimulus_name=='gratings':
 
         gt_props = {
-            'num_orientations': 8,
-            'sf_list': [0.04], # [0.01, 0.02, 0.04],
-            'tf_list': [1], # [1, 2, 4], # not currently used
-            'shuffle': True,
+            'num_orientations': 3,
+            'sf_list': [0.5], # [0.01, 0.02, 0.04],
+            'tf_list': [0.5, 2], # temporal frequency in Hz
+            'shuffle': False,
             'num_repeats': 1,
             'on_time': 2,
             'off_time': 0.5
