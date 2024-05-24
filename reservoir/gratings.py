@@ -1,59 +1,46 @@
-
+# previously in acq.utils
 
 import numpy as np
 import PySimpleGUI as sg
 from psychopy import visual, core
+import acq
 
 sg.theme('Default1')
 
+class DriftingGratings(acq.BaseStimulus):
 
-class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulus):
-
-    def __init__(self, stim_props, screen_id=2, savepath=None):
+    def __init__(self, screen_id): # all the stuff that needs to be explicitly passed when 
+                        # a DriftingGratings object is created
         """
-        Parameters
-        ----------
-        stim_props : dict
-            Dictionary of stimulus properties.
+        All attributes and methods specific to drifting gratings.
+        Inherits all attributes and methods from acq.BaseStimulus.
         """
 
-        # acq.BaseStimulus.__init__(self, stim_props, screen_id, savepath)
-        
-        np.random.seed(10)
+        super().__init__(screen_id)
 
-        self.screen_id = screen_id
+        self.props = {
+            'num_orientations': 3,
+            'sf_list': [0.5], # [0.01, 0.02, 0.04],
+            'tf_list': [0.5, 2], # temporal frequency in Hz
+            'shuffle': False,
+            'num_repeats': 1,
+            'on_time': 2,
+            'off_time': 0.5
+        }
 
         self.stim_stack = []
         self.stim_instructions = []
 
-        self.monitor_x = 800
-        self.monitor_y = 600  # default, can be changed with set_monitor_pxls() below
-
-        self.win = visual.Window(
-            [self.monitor_x, self.monitor_y],
-            checkTiming=False,
-            fullscr=True,
-            units='pix',
-            color=[0,0,0],
-            screen=self.screen_id
-        )
-
-        self.set_monitor_pxls()
-
-        self.savepath = savepath
-
-        self.props = stim_props
-
-        self.num_orientations = stim_props['num_orientations']
+        self.num_orientations = self.props['num_orientations']
         self.orientations = np.linspace(0, 360, self.num_orientations, endpoint=False)
-        self.spatial_freqs = stim_props['sf_list']
-        self.temporal_freqs = stim_props['tf_list']
+        self.spatial_freqs = self.props['sf_list']
+        self.temporal_freqs = self.props['tf_list']
     
-        self.doShuffle = stim_props['shuffle']
-        self.num_repeats = stim_props['num_repeats']
+        self.doShuffle = self.props['shuffle']
+        self.num_repeats = self.props['num_repeats']
 
-        self.on_time = stim_props['on_time']
-        self.off_time = stim_props['off_time']
+        self.on_time = self.props['on_time']
+        self.off_time = self.props['off_time']
 
         self.n_frames = len(self.orientations) * len(self.spatial_freqs) * len(self.temporal_freqs) * self.num_repeats
         
@@ -63,14 +50,9 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
             2   # start time / stop time
         ])
 
-    def set_monitor_pxls(self, monitor_x=800, monitor_y=600):
-
-        self.monitor_x = monitor_x
-        self.monitor_y = monitor_y
-
     def scale_spatial_freq_to_monitor(self):
         # Probably needs to be adjusted to new monitor
-
+        # 
         # Convert cycles/pixel to cycles/deg
         # 77.9 pixels / 1 cm (for diagonal resolution of small monitors)
         # 1 cm / 4 deg (for monitor placed 14.3 cm away from viewer)
@@ -129,8 +111,10 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
 
             self.stim_stack.append(_stim_obj)
         
+        # Here we turn the tf's in stim_instructions into a list
+        # so we can apply them as the Hz in def show() below.
         self.stim_stack_tf = []
-        for stim in self.stim_instructions: # takes tf to apply in show()
+        for stim in self.stim_instructions:
             self.stim_stack_tf.append(stim["tf"])
 
         self.stim_history = np.empty([
@@ -154,10 +138,10 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
         self.off_time.
         
         Stimulus onset is logged before the loop starts, stimulus offset is
-        logged just before switching to gray screen.
+        logged just before flipping to gray screen.
 
-        5/7/2024: Logging does not seem entirely precise, but maybe it
-        is precise enough for our purposes for now.
+        5/7/2024: Logging does not seem entirely temporally precise, but maybe
+        it is precise enough for our purposes for now.
         """
 
         if len(self.stim_stack) == 0:
@@ -186,26 +170,5 @@ class DriftingGratings(): # at some point class DriftingGratings(acq.BaseStimulu
                 on_time.reset()
             
             self.win.close()
-
-        # Keeping this for future purposes:
-
-        # The following works but is not super temporally precise
-        # (on and off intervals are not consistent throughout).
-
-        # else:
-        #     clock = core.MonotonicClock()
-
-        #     for i, frame in enumerate(self.stim_stack):
-        #         frame.draw()
-        #         self.win.flip()
-        #         self.stim_history[i,3] = clock.getTime(applyZero=True)
-        #         core.wait(self.on_time)
-
-        #         frame.clearTextures()
-        #         self.win.flip()
-        #         self.stim_history[i,4] = clock.getTime(applyZero=True)
-        #         core.wait(self.off_time)
-            
-        #     self.win.close()
 
         self.log_stim_presentation()
