@@ -18,8 +18,9 @@
 
 extra points:
 [] Create a monitor calibration for psychopy (keeps saying 'monitor specification not found').
-[] Write some kind of monitor calibration function that lets you enter monitor parameters (resolution, diagonal length, viewing distance etc.) and save them with a name. Monitor calibration should be accessible by BaseStimulus. Calibration name should become a parameter for stim() / stim_from_arg().
+[] Write some kind of monitor calibration function that lets you enter monitor parameters (resolution, diagonal length, viewing distance etc.) and save them with a name. Monitor calibration should be accessible by BaseStimulus (visual.Window). Calibration name should probably become a parameter for stim() / stim_from_arg().
 [] Make scale_spatial_freq_to_monitor() a method of BaseStimulus that is used and called upon presentation by all stimulus classes that have a spatial frequency parameter.
+
 [] Create docstrings for all the functions.
 [] Make sure all lines are <= 79 characters (PEP8).
 
