@@ -24,7 +24,7 @@ class BaseStimulus():
 
         self.mon = monitors.Monitor(name='mon1',
                                     width=24,
-                                    distance=40)
+                                    distance=10)
         self.mon.currentCalib['sizePix'] = (800,600)
 
         self.win = visual.Window(
@@ -59,7 +59,7 @@ class DriftingGratings(BaseStimulus):
         self.props = {
             'num_orientations': 3,
             'sf_list': [0.5], # [0.01, 0.02, 0.04],
-            'tf_list': [0.5, 2], # temporal frequency in Hz
+            'tf_list': [0.5], # temporal frequency in Hz
             'shuffle': False,
             'num_repeats': 1,
             'on_time': 2,
@@ -202,12 +202,12 @@ class Checkerboard(BaseStimulus):
         super().__init__(screen_id)
 
         self.props = {
-            'sf_list': [1],
+            'sf_list': [1, 2],
             'tf_list': [2], # reversals per sec
             'shuffle': True,
             'num_repeats': 1,
             'on_time': 4,
-            'off_time': 1
+            'off_time': 0
         }
 
     def log_stim_presentation(self):
